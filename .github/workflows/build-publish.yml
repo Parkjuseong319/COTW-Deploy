@@ -17,31 +17,8 @@ permissions:
 jobs:
   build-and-push:
     runs-on: ubuntu-24.04-arm
-  deploy:
-    name: Deploy to EC2
-    needs: build-and-push
-    runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy application
-        uses: appleboy/ssh-action@v1.2.5
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          port: 22
-          command_timeout: 10m
-          script: |
-            set -e
-
-            cd /home/ubuntu/cotw/backend
-
-            sudo docker compose -f docker-compose.prod.yml pull app frontend
-
-            sudo docker compose -f docker-compose.prod.yml up -d --no-deps --force-recreate app frontend
-
-            sudo docker compose -f docker-compose.prod.yml ps app frontend
-
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -82,3 +59,24 @@ jobs:
             ghcr.io/parkjuseong319/cotw-deploy-frontend:${{ github.sha }}
           cache-from: type=gha,scope=frontend
           cache-to: type=gha,mode=max,scope=frontend
+
+  deploy:
+    name: Deploy to EC2
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy application
+        uses: appleboy/ssh-action@v1.2.5
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          command_timeout: 10m
+          script: |
+            set -e
+
+            cd /home/ubuntu/cotw/backend
+
+            sudo docker compose -f docker-compose.prod.yml pull app frontend
