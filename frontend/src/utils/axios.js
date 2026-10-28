@@ -1,8 +1,9 @@
 import axios from 'axios';
 
 const instance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL, // 환경변수 사용
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   timeout: 180000,
+  withCredentials: true, // Refresh Token 쿠키 전송 및 수신
   headers: {
     'Content-Type': 'application/json',
   },
@@ -11,12 +12,13 @@ const instance = axios.create({
 // 요청 인터셉터
 instance.interceptors.request.use(
   (config) => {
-    // auth store의 persist 데이터에서 accessToken 가져오기
     const authData = localStorage.getItem('auth');
+
     if (authData) {
       try {
         const parsedAuth = JSON.parse(authData);
         const token = parsedAuth.accessToken;
+
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
@@ -24,6 +26,7 @@ instance.interceptors.request.use(
         console.error('Auth data parsing error:', error);
       }
     }
+
     return config;
   },
   (error) => Promise.reject(error)
@@ -31,15 +34,32 @@ instance.interceptors.request.use(
 
 // 응답 인터셉터
 instance.interceptors.response.use(
-  (response) => response.data, // .data만 반환
+  (response) => {
+    const requestUrl = response.config.url || '';
+
+    // 로그인 응답은 Access Token이 헤더에 있으므로 별도 추출
+    if (requestUrl.replace(/\/$/, '') === '/api/auth/login') {
+      const authorization = response.headers['authorization'];
+
+      const accessToken = authorization
+        ? authorization.replace(/^Bearer\s+/i, '').trim()
+        : null;
+
+      return {
+        data: response.data,
+        accessToken,
+        status: response.status,
+      };
+    }
+
+    // 나머지 API는 기존처럼 응답 본문만 반환
+    return response.data;
+  },
   (error) => {
     console.error('API 요청 실패:', error);
 
-    if (error.response) {
-      if (error.response.status === 401) {
-        // 인증 실패 처리 (예: 로그인 페이지로 이동)
-        console.warn('인증이 필요합니다.');
-      }
+    if (error.response?.status === 401) {
+      console.warn('인증이 필요합니다.');
     }
 
     return Promise.reject(error);
@@ -47,4 +67,3 @@ instance.interceptors.response.use(
 );
 
 export default instance;
-
