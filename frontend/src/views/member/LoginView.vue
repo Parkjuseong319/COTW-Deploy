@@ -149,18 +149,16 @@ const handleSubmit = async () => {
     // 상대 경로 사용 (로컬: 프록시, 배포: 같은 도메인)
     const response = await api.post('/api/auth/login', {
       email: form.email,
-      password: form.password
-    }, {
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      transformRequest: [(data) => {
-        return JSON.stringify(data);
-      }]
+      password: form.password,
     });
 
-    // JWT 토큰 저장 (응답 데이터에서 또는 헤더에서)
-    const token = response.headers['authorization']
+    const token = response?.accessToken;
+
+    if (!token) {
+      console.error('로그인 응답에 Access Token이 없습니다:', response);
+      message.error('로그인 응답에서 인증 토큰을 확인하지 못했습니다.');
+      return;
+    }
 
     // pinia에 반영
     auth.login(token)
