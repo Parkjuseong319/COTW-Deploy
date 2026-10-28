@@ -102,6 +102,10 @@ public class SecurityConfig {
                         List<String> allowedOrigins = frontendUrl.contains(",")
                             ? List.of(frontendUrl.split(","))
                             : List.of("http://localhost:5173", frontendUrl);
+                    System.out.println(
+                            "[CORS DEBUG] frontendUrl=[" + frontendUrl
+                                    + "], allowedOrigins=" + allowedOrigins
+                    );
                         config.setAllowedOrigins(allowedOrigins);
                         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
                         config.setAllowedHeaders(List.of("*"));
