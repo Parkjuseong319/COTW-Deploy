@@ -13,7 +13,7 @@ export const postAPI = {
   getDonationTotal: async () => {
     try {
       const response = await axios.get('/api/public/donation-total')
-      return response.data.totalWon
+      return response.totalWon
     }catch (e) {
       console.error('[DonationAPI] getDonationTotal failed: ', e)
       throw e
