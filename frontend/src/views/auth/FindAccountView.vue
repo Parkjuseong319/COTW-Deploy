@@ -176,7 +176,7 @@
 import { ref, reactive, computed } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
+import api from '@/utils/axios.js'
 
 const router = useRouter()
 const goLogin = () => router.push('/login')
@@ -222,7 +222,7 @@ async function sendIdCode() {
   if (!idCanSend.value) return
   idSending.value = true
   try {
-    await axios.post('/api/auth/email/send', { email: idForm.email, purpose: 'USERNAME_LOOKUP' })
+    await api.post('/api/auth/email/send', { email: idForm.email, purpose: 'USERNAME_LOOKUP' })
     message.success('인증코드를 전송했어요.')
     startIdCooldown(60)
   } catch (e) {
@@ -239,7 +239,7 @@ async function verifyIdCode() {
   if (!idForm.code) return
   idVerifying.value = true
   try {
-    const { data } = await axios.post('/api/auth/email/verify', {
+    const { data } = await api.post('/api/auth/email/verify', {
       email: idForm.email,
       code: idForm.code,
       purpose: 'USERNAME_LOOKUP'
@@ -248,7 +248,7 @@ async function verifyIdCode() {
       idVerified.value = true
       // 인증 성공 → 가입 아이디 조회
       try {
-        const res = await axios.post('/api/auth/username/lookup', { email: idForm.email })
+        const res = await api.post('/api/auth/username/lookup', { email: idForm.email })
         // 서버 응답 형태에 따라 필드명 조정 (username / userId 등)
         foundUsername.value = res.data?.email ?? ''
       } catch {
@@ -306,7 +306,7 @@ async function sendPwCode() {
   if (!pwCanSend.value) return
   pwSending.value = true
   try {
-    await axios.post('/api/auth/email/send', { email: pwForm.email, purpose: 'PASSWORD_RESET' })
+    await api.post('/api/auth/email/send', { email: pwForm.email, purpose: 'PASSWORD_RESET' })
     message.success('인증코드를 전송했어요.')
     startPwCooldown(60)
   } catch (e) {
@@ -323,7 +323,7 @@ async function verifyPwCode() {
   if (!pwForm.code) return
   pwVerifying.value = true
   try {
-    const { data } = await axios.post('/api/auth/email/verify', {
+    const { data } = await api.post('/api/auth/email/verify', {
       email: pwForm.email,
       code: pwForm.code,
       purpose: 'PASSWORD_RESET'
@@ -355,7 +355,7 @@ async function submitNewPassword() {
   if (!pwPasswordValid.value) return
   pwResetting.value = true
   try {
-    await axios.post('/api/auth/password/reset', {
+    await api.post('/api/auth/password/reset', {
       email: pwForm.email,
       code: pwForm.code,
       newPassword: pwForm.newPassword

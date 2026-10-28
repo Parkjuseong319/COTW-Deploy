@@ -147,7 +147,7 @@ const handleSubmit = async () => {
 
   try {
     // 상대 경로 사용 (로컬: 프록시, 배포: 같은 도메인)
-    const response = await axios.post('/api/auth/login', {
+    const response = await api.post('/api/auth/login', {
       email: form.email,
       password: form.password
     }, {
