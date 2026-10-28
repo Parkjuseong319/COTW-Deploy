@@ -1,6 +1,5 @@
 // utils/post.js
 import api from './axios.js'
-import axios from 'axios'
 
 export const postAPI = {
   // 메인: 공개 + 마감 임박 6개
@@ -12,7 +11,7 @@ export const postAPI = {
   // 기부금 총액
   getDonationTotal: async () => {
     try {
-      const response = await axios.get('/api/public/donation-total')
+      const response = await api.get('/api/public/donation-total')
       return response.totalWon
     }catch (e) {
       console.error('[DonationAPI] getDonationTotal failed: ', e)
