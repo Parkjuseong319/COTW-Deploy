@@ -79,4 +79,11 @@ jobs:
 
             cd /home/ubuntu/cotw/backend
 
+            # Pull latest images from GHCR
             sudo docker compose -f docker-compose.prod.yml pull app frontend
+
+            # Recreate containers with the updated images
+            sudo docker compose -f docker-compose.prod.yml up -d --no-deps app frontend
+
+            # Remove unused images
+            sudo docker image prune -f
